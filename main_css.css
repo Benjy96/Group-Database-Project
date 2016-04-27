@@ -46,7 +46,7 @@
 
 #wrapper.menuDisplayed  #sidebar-wrapper{
 	width: 241px;
-	position: absolute;
+	position: fixed;
 	background-color:black;
 }
 
