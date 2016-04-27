@@ -15,7 +15,6 @@
 
 .navbar-inverse .navbar-brand{
 	color:white;
-	
 }
 
 .navbar-brand{
@@ -41,12 +40,12 @@
 	width: 100%;
 	position: absolute;
 	padding: 15px;
-	border: 5px solid green;
 }
 
 #wrapper.menuDisplayed  #sidebar-wrapper{
+	height: 100%;
 	width: 241px;
-	position: absolute;
+	position: fixed;
 	background-color:black;
 }
 
@@ -73,6 +72,27 @@
 }
 
 /* Search Bar */
-.form-control{
-	width: 239px;
+#searchbar{
+	width: 230px;
 }
+
+/* Well */
+.well{
+	padding-left: 300px;
+}
+
+/* Images */
+img {
+	border-radius:12px;
+}
+
+.front-image{
+	display: block;
+	display: inline-block;
+
+	width: 600px;
+	height: 846px;
+	box-shadow: 10px 3px 50px grey;
+	border-radius: 25px;
+}
+
