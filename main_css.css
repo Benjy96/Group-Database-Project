@@ -47,6 +47,7 @@
 	width: 241px;
 	position: fixed;
 	background-color:black;
+	
 }
 
 /* Sidebar Styling */
@@ -94,5 +95,9 @@ img {
 	height: 846px;
 	box-shadow: 10px 3px 50px grey;
 	border-radius: 25px;
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> origin/master
