@@ -95,3 +95,20 @@ img {
 	border-radius: 25px;
 }
 
+/* Carousel */
+.left.carousel-control {
+	border-radius: 12px;
+}
+
+.left.carousel-control:hover {
+	color:red;
+}
+
+.right.carousel-control{
+	border-radius: 12px;
+}
+
+.right.carousel-control:hover {
+	color:red;
+}
+

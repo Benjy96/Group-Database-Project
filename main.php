@@ -290,7 +290,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 				<div class="item">
 				  <img src="<?php echo "$dbRow[0]";?>" alt="Second">
 				</div>
-
+				
 				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
 				<div class="item">
 				  <img src="<?php echo "$dbRow[0]";?>" alt="Third">
