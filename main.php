@@ -1,8 +1,10 @@
 <?php
 session_start();
 
-unset($_SESSION["currentUser"]);
-unset($_SESSION["currentUserID"]);
+if (!isset($_SESSION["currentUser"])){
+	
+	unset($_SESSION["currentUserID"]);
+}
 
 if (isset($_POST["action"]) && $_POST["action"]=="login") {
 
@@ -18,15 +20,17 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       if ($dbRow["username"]==$formUser) {       
          if ($dbRow["password"]==$formPass) {
             $_SESSION["currentUser"]=$formUser;
-            $_SESSION["currentUserID"]=$dbRow["id"];	
-				if (isset($_SESSION["tracklist"])) 
+            $_SESSION["currentUserID"]=$dbRow["id"];
+			header("Location: main.php");
+				/*if (isset($_SESSION["tracklist"])) 
                  header("Location: addToBasket.php");
-            else header("Location: shopForTracks.php");  			
-         }
+            else header("Location: shopForTracks.php");  		*/	
+         }//password if
          else {
             header("Location: main.php?failCode=2");
          }
-      } else {
+      }//user if 
+	  else {
             header("Location: main.php?failCode=1");
       }
 
@@ -65,11 +69,23 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       <li><a href="#"><span class="glyphicon glyphicon-earphone"></span> Contact Us</a></li>
     </ul>
 	
-	<!-- right side of navbar-->
-	<ul class="nav navbar-nav navbar-right">
-		<li><a href="#" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-		<li><a href="#" data-toggle="modal" data-target="#myModalLogin"><span class="glyphicon glyphicon-log-in"></span> Login </a></li>
-	</ul>
+	<?php
+	if(!isset($_SESSION["currentUser"])){
+	// right side of navbar-
+	echo "<ul class=\"nav navbar-nav navbar-right\">";
+		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up</a></li>";
+		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModalLogin\"><span class=\"glyphicon glyphicon-log-in\"></span> Login </a></li>";
+	echo "</ul>";
+	} else {
+		echo "<ul class=\"nav navbar-nav navbar-right\">";
+			echo "<li><a href=\"#\"><span class=\"glyphicon glyphicon-user\"></span> ". $_SESSION["currentUser"] ."</a></li>";
+			echo "<li><a href=\"#\"><span class=\"glyphicon glyphicon-gbp\"></span> Your Orders </a></li>";
+		echo "</ul>";
+		
+	}
+	
+	?>
+	
   </div><!-- fluid container -->  
 </nav><!-- NAV BAR TOP OF PAGE -->
 
