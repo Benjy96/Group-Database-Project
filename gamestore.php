@@ -263,7 +263,11 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	
 	?>
 	
-	
+	<div class="row">
+	<div class="well">
+				<!-- ALPHABETICAL SEARCH -->
+			</div>
+	</div>
 	<?php	
 	//QUERY FOR IMAGE AND GAMES
 	$dbQuery=$db->prepare("select id, url from gamelist");       
@@ -272,8 +276,8 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	?>
 		
 	<?php for($i = 0; $i < 25; $i++){ ?>
-	<div class="row">
-	</div>
+	
+	
 	
 	<div class="row">
 	<br>
