@@ -283,22 +283,22 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 			  <!-- Wrapper for slides -->
 			  <div class="carousel-inner" role="listbox">
 				<div class="item active">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="First">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="First"></a>
 				</div>
 
 				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
 				<div class="item">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="Second">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Second"></a>
 				</div>
 				
 				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
 				<div class="item">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="Third">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Third"></a>
 				</div>
 
 				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
 				<div class="item">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="Four">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Four"></a>
 				</div>
 			  </div>
 				<?php //} ?>

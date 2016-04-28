@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+include ("dbConnect.php");
 //checks if ?logout has been passed via URL
 if(isset($_GET["logout"])){
 	
@@ -92,7 +92,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <!-- Latest compiled JavaScript -->
 <script src="bootstrap/boot/js/bootstrap.min.js"></script>
 <!-- custom stylesheet -->
-<link rel="stylesheet" href="main_css.css">
+<link rel="stylesheet" href="gamestore_css.css">
 </head>
 <body>
 
@@ -249,22 +249,59 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <div id = "page-content-wrapper">
 <div class="row">
 	<div class="container-fluid">
-		
-			<div class="well">
-				<h1>New Releases</h1>
-				<h1><small>Check out our hot new releases with <kbd>KILLER PRICES</kbd></small></h1>
-			</div>
+	<!-- space -->
 		</div>
+	</div>
+	<?php 
+	if(isset($_GET["gameno"])){
+		
+		
+		
+		
+		
+	}else {
+	
+	?>
+	
+	
+	<?php	
+	//QUERY FOR IMAGE AND GAMES
+	$dbQuery=$db->prepare("select id, url from gamelist");       
+	$dbQuery->execute();
+	$numTracks=$dbQuery->rowCount();
+	?>
+		
+	<?php for($i = 0; $i < 25; $i++){ ?>
+	<div class="row">
 	</div>
 	
 	<div class="row">
-		<div class="col-md-4">
-			<!-- Empty Space -->
+	<br>
+	<br>
+	<br>
+	<div class="container">
+	<div class="col-md-8">
+		<div class="front-image">
+		<!-- IMAGE BLOCK -->
+		<?php 
+		($dbRow=$dbQuery->fetch(PDO::FETCH_NUM));
+		?>
+		<a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" id="gamepic" alt="First"></a>
+		
 		</div>
-		
-		<!-- Front Page Image CSS Div -->
-		
+	</div><!-- container -->
+	<div class="col-md-4">
+		<div class="front-image">
+		<!-- IMAGE BLOCK -->
+		<?php 
+		($dbRow=$dbQuery->fetch(PDO::FETCH_NUM));
+		?>
+		<a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" id="gamepic" alt="First"></a>
+		</div>
 	</div>
+</div>
+</div><!-- row -->
+	<?php }} ?>
 		
 </div><!-- Content Wrapper -->
 
