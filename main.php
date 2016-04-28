@@ -8,12 +8,26 @@ if(isset($_GET["logout"])){
 	unset($_SESSION["currentUserID"]);
 }
 
+
 //if current user isn't set, unset ID (just safety)
 if (!isset($_SESSION["currentUser"])){
 	
 	unset($_SESSION["currentUserID"]);
 }
 
+//if signup form has been submitted, check user/password
+if (isset($_POST["action"]) && $_POST["action"]=="signup") {
+
+	$signupUser=$_POST["sUsername"];
+	$signupPass=$_POST["sPassword"];
+	
+	include ("dbConnect.php");
+	
+	$dbQuery=$db->prepare("insert into users 
+							values (null, :sUsername, :sPassword)"); 
+	$dbParams = array('sUsername'=>$signupUser, 'sPassword'=>$signupPass);
+	$dbQuery->execute($dbParams);
+}
 //if login form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="login") {
 
@@ -94,7 +108,6 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 		echo "</ul>";
 		
 	}
-	
 	?>
   </div><!-- fluid container -->  
 </nav><!-- NAV BAR TOP OF PAGE -->
@@ -116,17 +129,14 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 			<li class="list-group-item list-group-item-danger">Danger item</li>
 		</ul>
 		<!-- LOGOUT NEEDED -->
-		<button type="button" class="btn btn-danger"><a href="main.php?logout">Log out</a></button>			
+		&nbsp;&nbsp;<a href="main.php?logout">Log out</a>	
 	</div><!-- body -->
-  
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
-
-
 
 <!-- Modal Sign Up -->
 <div id="myModal" class="modal fade" role="dialog">
@@ -151,6 +161,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 				<input type="password" class="form-control" name="sPassword"placeholder="Enter Password...">
 			</div>
 			<!-- Submit button -->
+			<input type="hidden" name="action" value="signup">
 		<button type="submit" class="btn btn-default" value="Signup">Submit</button>
 	</form>   
   </div>
