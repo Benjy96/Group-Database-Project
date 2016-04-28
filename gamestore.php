@@ -1,6 +1,6 @@
 <?php
 session_start();
-include ("dbConnect.php");
+
 //checks if ?logout has been passed via URL
 if(isset($_GET["logout"])){
 	
@@ -21,18 +21,19 @@ if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 	$signupUser=$_POST["sUsername"];
 	$signupPass=$_POST["sPassword"];
 	
+	include ("dbConnect.php");
+	
 	$dbQuery2=$db->prepare("select * from users
 							where username=:signupUser");
 	$dbParams2 = array('signupUser'=>$signupUser);
 	$dbQuery2->execute($dbParams2);
 	$dbRow2=$dbQuery2->fetch(PDO::FETCH_ASSOC);
 	
-	//if to check if name is taken
 	if($dbRow2["username"]==$signupUser){
+		
 		echo"<script>alert('Account name taken');</script>";
 	}else{
 	
-	//Insert query to create account 
 	$dbQuery=$db->prepare("insert into users 
 							values (null, :sUsername, :sPassword)"); 
 	$dbParams = array('sUsername'=>$signupUser, 'sPassword'=>$signupPass);
@@ -50,6 +51,8 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	$formUser=$_POST["username"];
 	$formPass=$_POST["password"];
 
+	include ("dbConnect.php");
+
 	//check users in database
 	$dbQuery=$db->prepare("select * from users where username=:formUser"); 
 	$dbParams = array('formUser'=>$formUser);
@@ -59,17 +62,17 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
          if ($dbRow["password"]==$formPass) {
             $_SESSION["currentUser"]=$formUser;
             $_SESSION["currentUserID"]=$dbRow["id"];
-			header("Location: main.php");
+			header("Location: gamestore.php");
 				/*if (isset($_SESSION["tracklist"])) 
                  header("Location: addToBasket.php");
             else header("Location: shopForTracks.php");  		*/	
          }//password if
          else {
-            header("Location: main.php?failCode=2");
+            header("Location: gamestore.php?failCode=2");
          }
       }//user if 
 	  else {
-            header("Location: main.php?failCode=1");
+            header("Location: gamestore.php?failCode=1");
       }
 
    } else {
@@ -93,8 +96,6 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 </head>
 <body>
 
-
-
 <!-- navbar --> 
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid" id = "header">
@@ -102,8 +103,8 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       <a class="navbar-brand" href="#" id="menu-toggle"><span class="glyphicon glyphicon-arrow-down" id="menu-arrow"></span> Bean Industries</a>
     </div>
     <ul class="nav navbar-nav">
-      <li class="active"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-      <li><a href="gamestore.php"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
+      <li><a href="main.php"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+      <li class="active"><a href="#"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
       <li><a href="#"><span class="glyphicon glyphicon-earphone"></span> Contact Us</a></li>
     </ul>
 	
@@ -142,7 +143,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 			<li class="list-group-item list-group-item-danger">Danger item</li>
 		</ul>
 		<!-- LOGOUT NEEDED -->
-		&nbsp;&nbsp;<a href="main.php?logout">Log out</a>	
+		&nbsp;&nbsp;<a href="gamestore.php?logout">Log out</a>	
 	</div><!-- body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -163,7 +164,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       </div>
 	  <!-- MODAL BODY -->
       <div class="modal-body">
-		<form role="form" name="signup" method = "post" action="main.php">
+		<form role="form" name="signup" method = "post" action="gamestore.php">
 			<div class="form-group">
 				<label for="usr">Username:</label>
 				<input type="text" class="form-control" name="sUsername" placeholder="Enter Name...">
@@ -198,7 +199,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       </div>
 	  <!-- MODAL BODY -->
       <div class="modal-body">
-        <form role="form" name="login" method ="post" action="main.php">
+        <form role="form" name="login" method ="post" action="gamestore.php">
 			<div class="form-group">
 				<label for="usr">Username:</label>
 				<input type="text" name="username" class="form-control" placeholder= "Enter Name...">
@@ -261,60 +262,10 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 			<!-- Empty Space -->
 		</div>
 		
-		<?php				
-		$dbQuery=$db->prepare("select url from gamelist");       
-		$dbQuery->execute();
-		$numTracks=$dbQuery->rowCount();
-
-		($dbRow=$dbQuery->fetch(PDO::FETCH_NUM));
-		?>
-		
 		<!-- Front Page Image CSS Div -->
-		<div class="front-image">
-			<div id="myCarousel" class="carousel slide" data-ride="carousel">
-			  <!-- Indicators -->
-			  <ol class="carousel-indicators">
-				<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-				<li data-target="#myCarousel" data-slide-to="1"></li>
-				<li data-target="#myCarousel" data-slide-to="2"></li>
-				<li data-target="#myCarousel" data-slide-to="3"></li>
-			  </ol>
-
-			  <!-- Wrapper for slides -->
-			  <div class="carousel-inner" role="listbox">
-				<div class="item active">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="First">
-				</div>
-
-				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-				<div class="item">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="Second">
-				</div>
-
-				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-				<div class="item">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="Third">
-				</div>
-
-				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-				<div class="item">
-				  <img src="<?php echo "$dbRow[0]";?>" alt="Four">
-				</div>
-			  </div>
-				<?php //} ?>
-
-			  <!-- Left and right controls -->
-			  <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-				<span class="sr-only">Previous</span>
-			  </a>
-			  <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-				<span class="sr-only">Next</span>
-			  </a>
-			</div><!-- Carousel -->
-		</div><!-- Front image div -->
-	</div><!-- Row -->		
+		
+	</div>
+		
 </div><!-- Content Wrapper -->
 
 <!-- Main wrapper -->
@@ -332,5 +283,5 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 </body>
 </html>
 <?php
-   }
+}
 ?>
