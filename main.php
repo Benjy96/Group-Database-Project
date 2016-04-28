@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+if(isset($_GET["logout"])){
+	
+	unset($_SESSION["currentUser"]);
+	unset($_SESSION["currentUserID"]);
+}
+
 if (!isset($_SESSION["currentUser"])){
 	
 	unset($_SESSION["currentUserID"]);
@@ -78,16 +84,44 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	echo "</ul>";
 	} else {
 		echo "<ul class=\"nav navbar-nav navbar-right\">";
-			echo "<li><a href=\"#\"><span class=\"glyphicon glyphicon-user\"></span> ". $_SESSION["currentUser"] ."</a></li>";
+			echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myUserModal\"><span class=\"glyphicon glyphicon-user\"></span> ". $_SESSION["currentUser"] ."</a></li>";
 			echo "<li><a href=\"#\"><span class=\"glyphicon glyphicon-gbp\"></span> Your Orders </a></li>";
 		echo "</ul>";
 		
 	}
 	
 	?>
-	
   </div><!-- fluid container -->  
 </nav><!-- NAV BAR TOP OF PAGE -->
+
+<!-- Modal user options -->
+<div id="myUserModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">User Information</h4>
+      </div>
+	  <!-- MODAL BODY -->
+      <div class="modal-body">
+		<ul class="list-group">
+			<li class="list-group-item list-group-item-success"> Sucess item</li>
+			<li class="list-group-item list-group-item-danger">Danger item</li>
+		</ul>
+		<!-- LOGOUT NEEDED -->
+		<button type="button" class="btn btn-danger"><a href="main.php?logout">Log out</a></button>			
+	</div><!-- body -->
+  
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- Modal Sign Up -->
 <div id="myModal" class="modal fade" role="dialog">
