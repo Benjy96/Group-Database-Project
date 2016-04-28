@@ -1,24 +1,29 @@
 <?php
 session_start();
 
+//checks if ?logout has been passed via URL
 if(isset($_GET["logout"])){
 	
 	unset($_SESSION["currentUser"]);
 	unset($_SESSION["currentUserID"]);
 }
 
+//if current user isn't set, unset ID (just safety)
 if (!isset($_SESSION["currentUser"])){
 	
 	unset($_SESSION["currentUserID"]);
 }
 
+//if login form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="login") {
 
+	//set form values to PHP variables for validation
 	$formUser=$_POST["username"];
 	$formPass=$_POST["password"];
 
 	include ("dbConnect.php");
 
+	//check users in database
 	$dbQuery=$db->prepare("select * from users where username=:formUser"); 
 	$dbParams = array('formUser'=>$formUser);
 	$dbQuery->execute($dbParams);
