@@ -8,15 +8,16 @@
       $games=$_POST["games"];
    }
 
-   if (isset($_SESSION["currentUserID"])) {
+   if (isset($_SESSION["currentUser"])) {
       include ("dbConnect.php");
       $userID=$_SESSION["currentUserID"];
       foreach ($games as $thisGameID) {
-          $dbQuery=$db->prepare("select * from basket where userID=:userID and trackID=:thisGameID");
+          $dbQuery=$db->prepare("select * from basket where userID=:userID and gameID=:thisGameID");
           $dbParams = array('userID'=>$userID, 'thisGameID'=>$thisGameID);
           $dbQuery->execute($dbParams);
           if ($dbQuery->rowCount()==0) {
-             $dbQuery=$db->prepare("insert into basket values (null, :userID, :thisGameID, 'N')");
+             $dbQuery=$db->prepare("insert into basket 
+									values (null, :userID, :thisGameID, 'N')");
              $dbParams = array('userID'=>$userID, 'thisGameID'=>$thisGameID);
              $dbQuery->execute($dbParams);
           }   

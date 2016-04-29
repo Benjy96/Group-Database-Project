@@ -1,46 +1,40 @@
 <?php
 session_start();
 include ("dbConnect.php");
-<<<<<<< HEAD
 
 if(isset($_SESSION["currentUser"])){
 	$userID = $_SESSION["currentUser"];
+	$currentUserID = $_SESSION["currentUserID"];
 }
-=======
->>>>>>> origin/master
 //checks if ?logout has been passed via URL
-if(isset($_GET["logout"])){
+if (isset($_GET["logout"])) {
 	
 	unset($_SESSION["currentUser"]);
 	unset($_SESSION["currentUserID"]);
+	unset($_POST["action"]);
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
 //if current user isn't set, unset ID (just safety)
 if (!isset($_SESSION["currentUser"])){
 	
+	unset($_SESSION["currentUser"]);
 	unset($_SESSION["currentUserID"]);
+	header("Location: main.php");
 }
 
-<<<<<<< HEAD
 //if individual game added to basket
 if(isset($_POST["action"]) && $_POST["action"] == "addGame"){
-	if($_POST["selectedGame"] == ""){
-		echo "<script>alert('Please confirm your selection');</script>";
-	} else {
 	if($_SESSION["currentUser"] != ""){
-		
+	
 	$userID=$_SESSION["currentUser"];
+	$currentUserID = $_SESSION["currentUserID"];
 		
 	$addedGame=$_POST["selectedGame"];
 	
-	$dbQuery=$db->prepare("select * 
+	$dbQuery=$db->prepare("select userID, gameID 
 							from basket
-							where userID=:userID and gameID=:addedGame");
-	$dbParams = array('userID'=>$userID, 'addedGame'=>$addedGame);
+							where userID=:currentUserID and gameID=:addedGame");
+	$dbParams = array('currentUserID'=>$currentUserID, 'addedGame'=>$addedGame);
 	$dbQuery->execute($dbParams);
 	$dbRow=$dbQuery->fetch(PDO::FETCH_ASSOC);
 	
@@ -51,16 +45,14 @@ if(isset($_POST["action"]) && $_POST["action"] == "addGame"){
 	else{
 	//Insert query
 	$dbQuery2=$db->prepare("insert into basket 
-							values (null, :userID, :addedGame, 'N')"); 
-	$dbParams2 = array('userID'=>$userID, 'addedGame'=>$addedGame);
+							values (null, :currentUserID, :addedGame, 'N')"); 
+	$dbParams2 = array('currentUserID'=>$currentUserID, 'addedGame'=>$addedGame);
 	$dbQuery2->execute($dbParams2);	
 	}//else
-		
-	//add success text
+
+		}
 	}
-}
-=======
->>>>>>> origin/master
+	
 //if signup form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 
@@ -88,12 +80,16 @@ if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 	echo"<script>alert('Account Created!');</script>";
 	
 	$_SESSION["currentUser"]=$signupUser;
+	
+	$dbQuery2=$db->prepare("select * from users
+							where username=:signupUser");
+	$dbParams2 = array('signupUser'=>$signupUser);
+	$dbQuery2->execute($dbParams2);
+	$dbRow2=$dbQuery2->fetch(PDO::FETCH_ASSOC);
+	
+	$_SESSION["currentUserID"]=$dbRow2["id"];
+		}	
 	}
-}
-<<<<<<< HEAD
-}
-=======
->>>>>>> origin/master
 //if login form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="login") {
 
@@ -150,26 +146,22 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid" id = "header">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#" id="menu-toggle"><span class="glyphicon glyphicon-arrow-down" id="menu-arrow"></span> Bean Industries</a>
+      <a class="navbar-brand" href="#" id="menu-toggle"><span class="glyphicon glyphicon-arrow-up" id="menu-arrow"></span> Bean Industries</a>
     </div>
     <ul class="nav navbar-nav">
       <li><a href="main.php"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-<<<<<<< HEAD
       <li class="active"><a href="gamestore.php"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
-=======
-      <li class="active"><a href="#"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
->>>>>>> origin/master
       <li><a href="#"><span class="glyphicon glyphicon-earphone"></span> Contact Us</a></li>
     </ul>
 	
 	<?php
-<<<<<<< HEAD
 	if (isset($_SESSION["currentUser"])) { 
 	
 	$userID = $_SESSION["currentUser"];
+	$currentUserID = $_SESSION["currentUserID"];
 	
-    $dbQuery=$db->prepare("select * from basket where paid='N' and userID=:userID");
-    $dbParams = array('userID'=>$_SESSION["currentUser"]);
+    $dbQuery=$db->prepare("select * from basket where paid='N' and userID=:currentUserID");
+    $dbParams = array('currentUserID'=>$_SESSION["currentUserID"]);
     $dbQuery->execute($dbParams);
     $numGames=$dbQuery->rowCount();
 	}
@@ -178,21 +170,11 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	// right side of navbar-
 	echo "<ul class=\"nav navbar-nav navbar-right\">";
 		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up </a></li>";
-=======
-	if(!isset($_SESSION["currentUser"])){
-	// right side of navbar-
-	echo "<ul class=\"nav navbar-nav navbar-right\">";
-		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up</a></li>";
->>>>>>> origin/master
 		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModalLogin\"><span class=\"glyphicon glyphicon-log-in\"></span> Login </a></li>";
 	echo "</ul>";
 	} else {
 		echo "<ul class=\"nav navbar-nav navbar-right\">";
-<<<<<<< HEAD
 			echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myUserModal\"><span class=\"glyphicon glyphicon-user badge\"> ".$numGames."</span> ". $_SESSION["currentUser"] ."</a></li>";
-=======
-			echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myUserModal\"><span class=\"glyphicon glyphicon-user\"></span> ". $_SESSION["currentUser"] ."</a></li>";
->>>>>>> origin/master
 			echo "<li><a href=\"#\"><span class=\"glyphicon glyphicon-gbp\"></span> Your Orders </a></li>";
 		echo "</ul>";
 		
@@ -213,17 +195,11 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       </div>
 	  <!-- MODAL BODY -->
       <div class="modal-body">
-<<<<<<< HEAD
 		<ul class="list-group">			
 			<li class="list-group-item list-group-item-danger">You have <?php echo "$numGames games in your basket"?></li>
-=======
-		<ul class="list-group">
-			<li class="list-group-item list-group-item-success"> Sucess item</li>
-			<li class="list-group-item list-group-item-danger">Danger item</li>
->>>>>>> origin/master
 		</ul>
 		<!-- LOGOUT NEEDED -->
-		&nbsp;&nbsp;<a href="gamestore.php?logout">Log out</a>	
+		&nbsp;&nbsp;<a href="gamestore.php?logout">Log out</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="purchaseGames.php">Basket</a>	
 	</div><!-- body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -316,18 +292,136 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <br>
 <div id="sidebar-wrapper">
 <br>
-	<ul class="sidebar-nav" id = "header-right">
-		<br>
-		<li><a href ="#">Account</a></li>
-		<li><a href ="#">Account</a></li>
-	</ul>
-	<input type="text" class="form-control" placeholder="Search Games..." id ="searchbar">
+<br>
+	<div id = "twitterapi"><!-- TWITTER -->
+	  <div id="twitter-container">
+     	   <form method='get' action='gamestore.php'>
+      	       <!-- Add a set of radio buttons for the user to choose how many results to return -->
+      	       <input type='text' name='searchTerm' value='' size='15'>
+      	       <input type='submit' name='action' value='Search'>
+      	   </form>	   
+      </div>
+     
+      <div id="content">
+<?php
+require ("TwitterAPI.php");
+
+function printJSON($jsonData) {
+	$jsonString = htmlspecialchars(json_encode($jsonData, JSON_PRETTY_PRINT));
+	echo "<pre>" . $jsonString . "</pre>";
+}
+function showTweetProperties($tweet) {
+
+    /* Modify the 'if' statements in this block so that the headings are only displayed if 
+       there is any content to show (1c) */
+            	
+	if (sizeof($tweet->entities->urls) > 0) {
+		echo "<p>URLS<br>";
+		foreach ($tweet->entities->urls as $url) {
+			echo "<a href='$url->url'>$url->url</a><br>";
+		}
+		echo "</p>";
+	}			
+	
+	if (sizeof($tweet->entities->hashtags) > 0) {
+		echo "<p>HASHTAGS<br>";
+		foreach ($tweet->entities->hashtags as $hashtag) {
+			$searchTerm = $hashtag->text;
+			echo "<a href='easytweet-1 (1).php?action=hashtag&searchTerm=$searchTerm'>#$searchTerm</a><br>";
+		}
+		echo "</p>";
+	}
+	
+	if (sizeof($tweet->entities->user_mentions) > 0) {
+		echo "<p>USER MENTIONS<br>";
+		foreach ($tweet->entities->user_mentions as $user_mention) {
+			$searchTerm = $user_mention->screen_name;
+			echo "<a href='easytweet-1 (1).php?action=user&searchTerm=$searchTerm'>@$searchTerm</a><br>";
+		}
+		echo "</p>";
+	}	
+	
+	if (property_exists($tweet->entities, 'media')) {
+		foreach ($tweet->entities->media as $media) {
+		?>	    
+			<img src ="<?php echo $media->media_url; ?>" /><br> <?php
+		}
+		echo "</p>";
+	}	
+}//function showtweetproperties
+//----------------------------------------------------
+// MAIN BODY - get action and make call to Twitter API
+//----------------------------------------------------
+if (isset($_GET['action'])) {
+
+	if ($_GET['action']=='hashtag') {
+		$hashtag=trim($_GET['searchTerm']);
+		$twitterURL = 'search/tweets.json';
+		$params = array('q' => $hashtag,
+    	                'count' => '10');
+    	$twitterData = callTwitter($twitterURL, $params);
+    	$tweets = $twitterData->statuses;	                
+	}
+
+	if ($_GET['action']=='user') {
+		$user=trim($_GET['searchTerm']);
+		$twitterURL = 'statuses/user_timeline.json';
+		$params = array('screen_name' => $user,
+    	                'count' => '10');               
+    	$tweets = callTwitter($twitterURL, $params);	                
+	}	
+	
+	if ($_GET['action']=='Search') {
+		$searchTerm=trim($_GET['searchTerm']);
+		$searchVal="40";
+		$twitterURL = 'search/tweets.json';
+		$params = array('q' => $searchTerm,
+						'count' => $searchVal);				
+		$twitterData = callTwitter($twitterURL, $params);
+		$tweets = $twitterData->statuses;
+		/* Replace the following line with code that accepts the search term
+		   provided by the user (the $searchTerm variable) and returns the selected number 
+		   of matching tweets (2b) */ 
+    	//$tweets = callTwitter($twitterURL, $params);                
+	}
+	
+} else{
+		$searchVal="40";
+		$searchTerm="gaming";
+		
+		$twitterURL = 'search/tweets.json';
+		$params = array('q' => $searchTerm,
+						'count' => $searchVal);				
+		$twitterData = callTwitter($twitterURL, $params);
+		$tweets = $twitterData->statuses;	
+}
+// un-comment the next line to see the structure of the twitter data
+//printJSON($tweets);
+// display tweets on web page
+
+foreach ($tweets as $tweet) {
+
+    /* Display the screen_name property as a clickable hyperlink to load that user's timeline (1d)
+       Note - this is NOT a link to twitter.com, but a link to your easytweet-1 (1) application */    
+	echo "<hr><p>Tweet from @";
+	$username = $tweet->user->screen_name;
+$url = "easytweet-1 (1).php?action=user&searchTerm=$username";
+			echo "<a href='$url'>$username</a>";
+	
+	//time and text
+	echo $tweet->created_at. "<br>";
+	echo $tweet->text."</p>";
+	showTweetProperties($tweet);
+}
+
+?>
+      </div> <!-- end of content div -->
+   </div> <!-- end of container div -->
 </div>
 
 
 <!-- PAGE CONTENT -->
 <div id = "page-content-wrapper">
-<<<<<<< HEAD
 
 	<?php 
 	//if game has been selected, go to information page
@@ -359,7 +453,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	</div>
 	</div>
 	
-	<div class="col-md-6">
+	<div class="col-md-6" id="buypage">
 	<h3>Name: </h3><?php echo "<h3><small>$dbRow[1]</small></h3>"; ?>
 	<h3>Age Rating: </h3><?php echo "<h3><small>$dbRow[2]</small></h3>"; ?>
 	<h3>Price: </h3><?php echo "<h3><small>£$dbRow[3]</small></h3>"; ?>
@@ -463,29 +557,6 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
   </div>
   </div>
   </div>
-=======
-<div class="row">
-	<div class="container-fluid">
-	<!-- space -->
-		</div>
-	</div>
-	<?php 
-	if(isset($_GET["gameno"])){
-		
-		
-		
-		
-		
-	}else {
-	
-	?>
-	
-	<div class="row">
-	<div class="well">
-				<!-- ALPHABETICAL SEARCH -->
-			</div>
-	</div>
->>>>>>> origin/master
 	<?php	
 	//QUERY FOR IMAGE AND GAMES
 	$dbQuery=$db->prepare("select id, url from gamelist");       
@@ -494,12 +565,6 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	?>
 		
 	<?php for($i = 0; $i < 25; $i++){ ?>
-<<<<<<< HEAD
-=======
-	
-	
-	
->>>>>>> origin/master
 	<div class="row">
 	<br>
 	<br>
@@ -538,10 +603,9 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 /* JQuery to toggle sidebar on main page */
 	$("#menu-toggle").click(function(expansion){
 		expansion.preventDefault();
-			$("#wrapper").toggleClass("menuDisplayed");
-			$(".glyphicon.glyphicon-arrow-down").fadeToggle(1000);
+			$("#wrapper").toggleClass("menuHidden");
+			$(".glyphicon.glyphicon-arrow-up").fadeToggle(1000);
 		});	
-<<<<<<< HEAD
 /* JQuery to toggle button on basket page */
 	var buttonCounter = 0;
 	$(".checkbox").click(function(e){
@@ -549,8 +613,6 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 		if(buttonCounter<2)
 		$("#basket-button").append("<button type=\"submit\" class=\"btn btn-default\">Add Game To Basket</button>");
 	});
-=======
->>>>>>> origin/master
 	</script>
 </body>
 </html>

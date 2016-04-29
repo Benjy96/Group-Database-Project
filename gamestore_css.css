@@ -23,30 +23,32 @@
 }
 
 /* Main Content */
-#wrapper.menuDisplayed  #page-content-wrapper{
-	padding-left: 250px;
-}
-
-/* Sidebar */
-#sidebar-wrapper{
-	z-index: 1;
-	position:absolute;
-	height: 100%;
-	width: 0px;
-	overflow-y:hidden;
-}
-
-#page-content-wrapper{	
+#wrapper.menuHidden  #page-content-wrapper{
 	width: 100%;
 	position: absolute;
 	padding: 15px;
 }
 
-#wrapper.menuDisplayed  #sidebar-wrapper{
+/* Sidebar */
+#sidebar-wrapper{
 	height: 100%;
 	width: 241px;
 	position: fixed;
 	background-color:black;
+	overflow-x:scroll;
+
+}
+
+#page-content-wrapper{	
+	padding-left: 250px;
+}
+
+#wrapper.menuHidden  #sidebar-wrapper{
+	z-index: 1;
+	position:absolute;
+	height: 100%;
+	width: 0px;
+	overflow-x:hidden;
 }
 
 /* Sidebar Styling */
@@ -103,18 +105,13 @@ img {
 	display: inline-block;
 	width: 300px;
 	height: 423px;
-<<<<<<< HEAD
 	box-shadow: 20px 13px 100px grey;
-=======
-	box-shadow: 10px 3px 50px grey;
->>>>>>> origin/master
 	border-radius: 25px;
 }
 
 #gamepic{
 	width: 300px;
 	height: 423px;
-<<<<<<< HEAD
 }
 
 /* AJAX List */
@@ -122,6 +119,25 @@ img {
 #ajax-list{
 	list-style: none;
 	padding-left: 230px;
-=======
->>>>>>> origin/master
+}
+
+#twitterapi{
+	display: block;
+	display: inline-block;
+	width: 220px;
+	overflow-x:scroll;
+	color:white;
+}
+
+#twitter-container{
+	color:black;
+}
+
+/* Buy Page */
+#buypage{
+	padding-left:55px;
+}
+
+#price-well{
+padding-left: 40px;
 }

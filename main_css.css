@@ -23,31 +23,32 @@
 }
 
 /* Main Content */
-#wrapper.menuDisplayed  #page-content-wrapper{
-	padding-left: 250px;
-}
-
-/* Sidebar */
-#sidebar-wrapper{
-	z-index: 1;
-	position:absolute;
-	height: 100%;
-	width: 0px;
-	overflow-x:hidden;
-}
-
-#page-content-wrapper{	
+#wrapper.menuHidden  #page-content-wrapper{
 	width: 100%;
 	position: absolute;
 	padding: 15px;
 }
 
-#wrapper.menuDisplayed  #sidebar-wrapper{
+/* Sidebar */
+#sidebar-wrapper{
 	height: 100%;
 	width: 241px;
 	position: fixed;
 	background-color:black;
 	overflow-x:scroll;
+
+}
+
+#page-content-wrapper{	
+	padding-left: 250px;
+}
+
+#wrapper.menuHidden  #sidebar-wrapper{
+	z-index: 1;
+	position:absolute;
+	height: 100%;
+	width: 0px;
+	overflow-x:hidden;
 }
 
 /* Sidebar Styling */
@@ -113,14 +114,16 @@ img {
 	color:red;
 }
 
-<<<<<<< HEAD
 /* Twitter API Box */
 #twitterapi{
 	display: block;
 	display: inline-block;
 	width: 220px;
 	overflow-x:scroll;
+	color:white;
 }
 
-=======
->>>>>>> origin/master
+#twitter-container{
+	color:black;
+}
+

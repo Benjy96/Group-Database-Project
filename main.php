@@ -2,16 +2,16 @@
 session_start();
 include ("dbConnect.php");
 //checks if ?logout has been passed via URL
-if(isset($_GET["logout"])){
-	
+if(isset($_GET["logout"])){	
 	unset($_SESSION["currentUser"]);
 	unset($_SESSION["currentUserID"]);
+	unset($_POST["action"]);
 }
-
 
 //if current user isn't set, unset ID (just safety)
 if (!isset($_SESSION["currentUser"])){
 	
+	unset($_SESSION["currentUser"]);
 	unset($_SESSION["currentUserID"]);
 }
 
@@ -41,6 +41,14 @@ if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 	echo"<script>alert('Account Created!');</script>";
 	
 	$_SESSION["currentUser"]=$signupUser;
+	
+	$dbQuery2=$db->prepare("select * from users
+							where username=:signupUser");
+	$dbParams2 = array('signupUser'=>$signupUser);
+	$dbQuery2->execute($dbParams2);
+	$dbRow2=$dbQuery2->fetch(PDO::FETCH_ASSOC);
+	
+	$_SESSION["currentUserID"]=$dbRow2["id"];
 	}
 }
 //if login form has been submitted, check user/password
@@ -99,7 +107,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid" id = "header">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#" id="menu-toggle"><span class="glyphicon glyphicon-arrow-down" id="menu-arrow"></span> Bean Industries</a>
+      <a class="navbar-brand" href="#" id="menu-toggle"><span class="glyphicon glyphicon-arrow-up" id="menu-arrow"></span> Bean Industries</a>
     </div>
     <ul class="nav navbar-nav">
       <li class="active"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
@@ -111,9 +119,10 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	if (isset($_SESSION["currentUser"])) { 
 	
 	$userID = $_SESSION["currentUser"];
+	$currentUserID = $_SESSION["currentUserID"];
 	
-    $dbQuery=$db->prepare("select * from basket where paid='N' and userID=:userID");
-    $dbParams = array('userID'=>$_SESSION["currentUser"]);
+    $dbQuery=$db->prepare("select * from basket where paid='N' and userID=:currentUserID");
+    $dbParams = array('currentUserID'=>$_SESSION["currentUserID"]);
     $dbQuery->execute($dbParams);
     $numGames=$dbQuery->rowCount();
 	}
@@ -150,7 +159,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 		<ul class="list-group">
 			<li class="list-group-item list-group-item-danger">You have <?php echo "$numGames games in your basket"?></li>
 		</ul>
-		&nbsp;&nbsp;<a href="main.php?logout">Log out</a>	
+		&nbsp;&nbsp;<a href="main.php?logout">Log out</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="main.php">Basket</a>	
 	</div><!-- body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -245,16 +254,15 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <br>
 <br>
 <!-- Twitter API -->
-	<div id = "twitterapi">
-	   <div id="container">  	   	   	   
-      	   <form method='get' action='easytweet (1).php'>
-			   <input type="radio" name="searchVal" value = "5"> 5<br>
-			   <input type="radio" name="searchVal" value = "10"> 10<br>
-			   <input type="radio" name="searchVal" value = "15"> 15<br>
-			   <input type="radio" name="searchVal" value = "20"> 20<br>
+<div id = "twitterapi"><!-- TWITTER -->
+	  <div id="twitter-container">
+     	   <form method='get' action='gamestore.php'>
+      	       <!-- Add a set of radio buttons for the user to choose how many results to return -->
       	       <input type='text' name='searchTerm' value='' size='15'>
       	       <input type='submit' name='action' value='Search'>
-      	   </form> 
+      	   </form>	   
+      </div>
+     
       <div id="content">
 <?php
 require ("TwitterAPI.php");
@@ -263,8 +271,10 @@ function printJSON($jsonData) {
 	$jsonString = htmlspecialchars(json_encode($jsonData, JSON_PRETTY_PRINT));
 	echo "<pre>" . $jsonString . "</pre>";
 }
-
 function showTweetProperties($tweet) {
+
+    /* Modify the 'if' statements in this block so that the headings are only displayed if 
+       there is any content to show (1c) */
             	
 	if (sizeof($tweet->entities->urls) > 0) {
 		echo "<p>URLS<br>";
@@ -273,11 +283,12 @@ function showTweetProperties($tweet) {
 		}
 		echo "</p>";
 	}			
+	
 	if (sizeof($tweet->entities->hashtags) > 0) {
 		echo "<p>HASHTAGS<br>";
 		foreach ($tweet->entities->hashtags as $hashtag) {
 			$searchTerm = $hashtag->text;
-			echo "<a href='easytweet (1).php?action=hashtag&searchTerm=$searchTerm'>#$searchTerm</a><br>";
+			echo "<a href='easytweet-1 (1).php?action=hashtag&searchTerm=$searchTerm'>#$searchTerm</a><br>";
 		}
 		echo "</p>";
 	}
@@ -286,10 +297,11 @@ function showTweetProperties($tweet) {
 		echo "<p>USER MENTIONS<br>";
 		foreach ($tweet->entities->user_mentions as $user_mention) {
 			$searchTerm = $user_mention->screen_name;
-			echo "<a href='easytweet (1).php?action=user&searchTerm=$searchTerm'>@$searchTerm</a><br>";
+			echo "<a href='easytweet-1 (1).php?action=user&searchTerm=$searchTerm'>@$searchTerm</a><br>";
 		}
 		echo "</p>";
 	}	
+	
 	if (property_exists($tweet->entities, 'media')) {
 		foreach ($tweet->entities->media as $media) {
 		?>	    
@@ -300,41 +312,74 @@ function showTweetProperties($tweet) {
 }//function showtweetproperties
 //----------------------------------------------------
 // MAIN BODY - get action and make call to Twitter API
-//---------------------------------------------------- 
-		$searchVal="20";
-		$searchTerm="uncharted";
-		
+//----------------------------------------------------
+if (isset($_GET['action'])) {
+
+	if ($_GET['action']=='hashtag') {
+		$hashtag=trim($_GET['searchTerm']);
+		$twitterURL = 'search/tweets.json';
+		$params = array('q' => $hashtag,
+    	                'count' => '10');
+    	$twitterData = callTwitter($twitterURL, $params);
+    	$tweets = $twitterData->statuses;	                
+	}
+
+	if ($_GET['action']=='user') {
+		$user=trim($_GET['searchTerm']);
+		$twitterURL = 'statuses/user_timeline.json';
+		$params = array('screen_name' => $user,
+    	                'count' => '10');               
+    	$tweets = callTwitter($twitterURL, $params);	                
+	}	
+	
+	if ($_GET['action']=='Search') {
+		$searchTerm=trim($_GET['searchTerm']);
+		$searchVal="40";
 		$twitterURL = 'search/tweets.json';
 		$params = array('q' => $searchTerm,
 						'count' => $searchVal);				
 		$twitterData = callTwitter($twitterURL, $params);
 		$tweets = $twitterData->statuses;
-
+		/* Replace the following line with code that accepts the search term
+		   provided by the user (the $searchTerm variable) and returns the selected number 
+		   of matching tweets (2b) */ 
+    	//$tweets = callTwitter($twitterURL, $params);                
+	}
+	
+} else {  // no action specified so show home timeline
+		$searchVal="40";
+		$searchTerm="gaming";
+		
+		$twitterURL = 'search/tweets.json';
+		$params = array('q' => $searchTerm,
+						'count' => $searchVal);				
+		$twitterData = callTwitter($twitterURL, $params);
+		$tweets = $twitterData->statuses;	
+}
 // un-comment the next line to see the structure of the twitter data
 //printJSON($tweets);
-
-	
 // display tweets on web page
 
 foreach ($tweets as $tweet) {
 
     /* Display the screen_name property as a clickable hyperlink to load that user's timeline (1d)
-       Note - this is NOT a link to twitter.com, but a link to your easytweet (1) application */    
+       Note - this is NOT a link to twitter.com, but a link to your easytweet-1 (1) application */    
 	echo "<hr><p>Tweet from @";
 	$username = $tweet->user->screen_name;
-$url = "easyTweet (1).php?action=user&searchTerm=$username";
-echo "<a href='$url'>$username</a>";
+$url = "easytweet-1 (1).php?action=user&searchTerm=$username";
+			echo "<a href='$url'>$username</a>";
 	
 	//time and text
 	echo $tweet->created_at. "<br>";
 	echo $tweet->text."</p>";
 	showTweetProperties($tweet);
 }
+
 ?>
       </div> <!-- end of content div -->
    </div> <!-- end of container div -->
-	</div> <!-- Twitter API -->
-</div><!-- Sidebar Wrapper -->
+</div>
+
 
 
 <!-- PAGE CONTENT -->
@@ -355,18 +400,13 @@ echo "<a href='$url'>$username</a>";
 		</div>
 		
 		<?php				
-<<<<<<< HEAD
 		$dbQuery=$db->prepare("select id, url from gamelist");       
-=======
-		$dbQuery=$db->prepare("select url from gamelist");       
->>>>>>> origin/master
 		$dbQuery->execute();
 		$numTracks=$dbQuery->rowCount();
 
 		($dbRow=$dbQuery->fetch(PDO::FETCH_NUM));
 		?>
 		
-<<<<<<< HEAD
 	<!-- Front Page Image CSS Div -->
 	<div class="front-image">
 		<div id="myCarousel" class="carousel slide" data-ride="carousel">
@@ -410,51 +450,6 @@ echo "<a href='$url'>$username</a>";
 			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 			<span class="sr-only">Next</span>
 		  </a>
-=======
-		<!-- Front Page Image CSS Div -->
-		<div class="front-image">
-			<div id="myCarousel" class="carousel slide" data-ride="carousel">
-			  <!-- Indicators -->
-			  <ol class="carousel-indicators">
-				<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-				<li data-target="#myCarousel" data-slide-to="1"></li>
-				<li data-target="#myCarousel" data-slide-to="2"></li>
-				<li data-target="#myCarousel" data-slide-to="3"></li>
-			  </ol>
-
-			  <!-- Wrapper for slides -->
-			  <div class="carousel-inner" role="listbox">
-				<div class="item active">
-				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="First"></a>
-				</div>
-
-				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-				<div class="item">
-				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Second"></a>
-				</div>
-				
-				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-				<div class="item">
-				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Third"></a>
-				</div>
-
-				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-				<div class="item">
-				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Four"></a>
-				</div>
-			  </div>
-				<?php //} ?>
-
-			  <!-- Left and right controls -->
-			  <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-				<span class="sr-only">Previous</span>
-			  </a>
-			  <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-				<span class="sr-only">Next</span>
-			  </a>
->>>>>>> origin/master
 			</div><!-- Carousel -->
 		</div><!-- Front image div -->
 	</div><!-- Row -->		
@@ -462,14 +457,12 @@ echo "<a href='$url'>$username</a>";
 
 <!-- Main wrapper -->
 </div>
-
-<!-- Menu toggle -->
 <script>
 /* JQuery to toggle sidebar on main page */
 	$("#menu-toggle").click(function(expansion){
 		expansion.preventDefault();
-			$("#wrapper").toggleClass("menuDisplayed");
-			$(".glyphicon.glyphicon-arrow-down").fadeToggle(1000);
+			$("#wrapper").toggleClass("menuHidden");
+			$(".glyphicon.glyphicon-arrow-up").fadeToggle(1000);
 		});	
 	</script>
 </body>
