@@ -103,13 +103,18 @@ img {
 	display: inline-block;
 	width: 300px;
 	height: 423px;
+<<<<<<< HEAD
 	box-shadow: 20px 13px 100px grey;
+=======
+	box-shadow: 10px 3px 50px grey;
+>>>>>>> origin/master
 	border-radius: 25px;
 }
 
 #gamepic{
 	width: 300px;
 	height: 423px;
+<<<<<<< HEAD
 }
 
 /* AJAX List */
@@ -117,4 +122,6 @@ img {
 #ajax-list{
 	list-style: none;
 	padding-left: 230px;
+=======
+>>>>>>> origin/master
 }

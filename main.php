@@ -355,13 +355,18 @@ echo "<a href='$url'>$username</a>";
 		</div>
 		
 		<?php				
+<<<<<<< HEAD
 		$dbQuery=$db->prepare("select id, url from gamelist");       
+=======
+		$dbQuery=$db->prepare("select url from gamelist");       
+>>>>>>> origin/master
 		$dbQuery->execute();
 		$numTracks=$dbQuery->rowCount();
 
 		($dbRow=$dbQuery->fetch(PDO::FETCH_NUM));
 		?>
 		
+<<<<<<< HEAD
 	<!-- Front Page Image CSS Div -->
 	<div class="front-image">
 		<div id="myCarousel" class="carousel slide" data-ride="carousel">
@@ -405,6 +410,51 @@ echo "<a href='$url'>$username</a>";
 			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 			<span class="sr-only">Next</span>
 		  </a>
+=======
+		<!-- Front Page Image CSS Div -->
+		<div class="front-image">
+			<div id="myCarousel" class="carousel slide" data-ride="carousel">
+			  <!-- Indicators -->
+			  <ol class="carousel-indicators">
+				<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+				<li data-target="#myCarousel" data-slide-to="1"></li>
+				<li data-target="#myCarousel" data-slide-to="2"></li>
+				<li data-target="#myCarousel" data-slide-to="3"></li>
+			  </ol>
+
+			  <!-- Wrapper for slides -->
+			  <div class="carousel-inner" role="listbox">
+				<div class="item active">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="First"></a>
+				</div>
+
+				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
+				<div class="item">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Second"></a>
+				</div>
+				
+				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
+				<div class="item">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Third"></a>
+				</div>
+
+				<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
+				<div class="item">
+				  <a href="#"><img src="<?php echo "$dbRow[0]";?>" alt="Four"></a>
+				</div>
+			  </div>
+				<?php //} ?>
+
+			  <!-- Left and right controls -->
+			  <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+				<span class="sr-only">Previous</span>
+			  </a>
+			  <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			  </a>
+>>>>>>> origin/master
 			</div><!-- Carousel -->
 		</div><!-- Front image div -->
 	</div><!-- Row -->		

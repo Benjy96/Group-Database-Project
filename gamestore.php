@@ -1,10 +1,13 @@
 <?php
 session_start();
 include ("dbConnect.php");
+<<<<<<< HEAD
 
 if(isset($_SESSION["currentUser"])){
 	$userID = $_SESSION["currentUser"];
 }
+=======
+>>>>>>> origin/master
 //checks if ?logout has been passed via URL
 if(isset($_GET["logout"])){
 	
@@ -12,12 +15,17 @@ if(isset($_GET["logout"])){
 	unset($_SESSION["currentUserID"]);
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
 //if current user isn't set, unset ID (just safety)
 if (!isset($_SESSION["currentUser"])){
 	
 	unset($_SESSION["currentUserID"]);
 }
 
+<<<<<<< HEAD
 //if individual game added to basket
 if(isset($_POST["action"]) && $_POST["action"] == "addGame"){
 	if($_POST["selectedGame"] == ""){
@@ -51,6 +59,8 @@ if(isset($_POST["action"]) && $_POST["action"] == "addGame"){
 	//add success text
 	}
 }
+=======
+>>>>>>> origin/master
 //if signup form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 
@@ -80,7 +90,10 @@ if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 	$_SESSION["currentUser"]=$signupUser;
 	}
 }
+<<<<<<< HEAD
 }
+=======
+>>>>>>> origin/master
 //if login form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="login") {
 
@@ -141,11 +154,16 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
     </div>
     <ul class="nav navbar-nav">
       <li><a href="main.php"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+<<<<<<< HEAD
       <li class="active"><a href="gamestore.php"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
+=======
+      <li class="active"><a href="#"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
+>>>>>>> origin/master
       <li><a href="#"><span class="glyphicon glyphicon-earphone"></span> Contact Us</a></li>
     </ul>
 	
 	<?php
+<<<<<<< HEAD
 	if (isset($_SESSION["currentUser"])) { 
 	
 	$userID = $_SESSION["currentUser"];
@@ -160,11 +178,21 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	// right side of navbar-
 	echo "<ul class=\"nav navbar-nav navbar-right\">";
 		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up </a></li>";
+=======
+	if(!isset($_SESSION["currentUser"])){
+	// right side of navbar-
+	echo "<ul class=\"nav navbar-nav navbar-right\">";
+		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up</a></li>";
+>>>>>>> origin/master
 		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModalLogin\"><span class=\"glyphicon glyphicon-log-in\"></span> Login </a></li>";
 	echo "</ul>";
 	} else {
 		echo "<ul class=\"nav navbar-nav navbar-right\">";
+<<<<<<< HEAD
 			echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myUserModal\"><span class=\"glyphicon glyphicon-user badge\"> ".$numGames."</span> ". $_SESSION["currentUser"] ."</a></li>";
+=======
+			echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myUserModal\"><span class=\"glyphicon glyphicon-user\"></span> ". $_SESSION["currentUser"] ."</a></li>";
+>>>>>>> origin/master
 			echo "<li><a href=\"#\"><span class=\"glyphicon glyphicon-gbp\"></span> Your Orders </a></li>";
 		echo "</ul>";
 		
@@ -185,8 +213,14 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       </div>
 	  <!-- MODAL BODY -->
       <div class="modal-body">
+<<<<<<< HEAD
 		<ul class="list-group">			
 			<li class="list-group-item list-group-item-danger">You have <?php echo "$numGames games in your basket"?></li>
+=======
+		<ul class="list-group">
+			<li class="list-group-item list-group-item-success"> Sucess item</li>
+			<li class="list-group-item list-group-item-danger">Danger item</li>
+>>>>>>> origin/master
 		</ul>
 		<!-- LOGOUT NEEDED -->
 		&nbsp;&nbsp;<a href="gamestore.php?logout">Log out</a>	
@@ -293,6 +327,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 
 <!-- PAGE CONTENT -->
 <div id = "page-content-wrapper">
+<<<<<<< HEAD
 
 	<?php 
 	//if game has been selected, go to information page
@@ -428,6 +463,29 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
   </div>
   </div>
   </div>
+=======
+<div class="row">
+	<div class="container-fluid">
+	<!-- space -->
+		</div>
+	</div>
+	<?php 
+	if(isset($_GET["gameno"])){
+		
+		
+		
+		
+		
+	}else {
+	
+	?>
+	
+	<div class="row">
+	<div class="well">
+				<!-- ALPHABETICAL SEARCH -->
+			</div>
+	</div>
+>>>>>>> origin/master
 	<?php	
 	//QUERY FOR IMAGE AND GAMES
 	$dbQuery=$db->prepare("select id, url from gamelist");       
@@ -436,6 +494,12 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	?>
 		
 	<?php for($i = 0; $i < 25; $i++){ ?>
+<<<<<<< HEAD
+=======
+	
+	
+	
+>>>>>>> origin/master
 	<div class="row">
 	<br>
 	<br>
@@ -477,6 +541,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 			$("#wrapper").toggleClass("menuDisplayed");
 			$(".glyphicon.glyphicon-arrow-down").fadeToggle(1000);
 		});	
+<<<<<<< HEAD
 /* JQuery to toggle button on basket page */
 	var buttonCounter = 0;
 	$(".checkbox").click(function(e){
@@ -484,6 +549,8 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 		if(buttonCounter<2)
 		$("#basket-button").append("<button type=\"submit\" class=\"btn btn-default\">Add Game To Basket</button>");
 	});
+=======
+>>>>>>> origin/master
 	</script>
 </body>
 </html>
