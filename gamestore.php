@@ -1,6 +1,10 @@
 <?php
 session_start();
 include ("dbConnect.php");
+
+if(isset($_SESSION["currentUser"])){
+	$userID = $_SESSION["currentUser"];
+}
 //checks if ?logout has been passed via URL
 if(isset($_GET["logout"])){
 	
@@ -8,18 +12,52 @@ if(isset($_GET["logout"])){
 	unset($_SESSION["currentUserID"]);
 }
 
-
 //if current user isn't set, unset ID (just safety)
 if (!isset($_SESSION["currentUser"])){
 	
 	unset($_SESSION["currentUserID"]);
 }
 
+//if individual game added to basket
+if(isset($_POST["action"]) && $_POST["action"] == "addGame"){
+	if($_POST["selectedGame"] == ""){
+		echo "<script>alert('Please confirm your selection');</script>";
+	} else {
+	if($_SESSION["currentUser"] != ""){
+		
+	$userID=$_SESSION["currentUser"];
+		
+	$addedGame=$_POST["selectedGame"];
+	
+	$dbQuery=$db->prepare("select * 
+							from basket
+							where userID=:userID and gameID=:addedGame");
+	$dbParams = array('userID'=>$userID, 'addedGame'=>$addedGame);
+	$dbQuery->execute($dbParams);
+	$dbRow=$dbQuery->fetch(PDO::FETCH_ASSOC);
+	
+	//if to check if name is taken
+	if($dbRow["gameID"]==$addedGame){
+		echo"<script>alert('Item already in basket');</script>";
+	}
+	else{
+	//Insert query
+	$dbQuery2=$db->prepare("insert into basket 
+							values (null, :userID, :addedGame, 'N')"); 
+	$dbParams2 = array('userID'=>$userID, 'addedGame'=>$addedGame);
+	$dbQuery2->execute($dbParams2);	
+	}//else
+		
+	//add success text
+	}
+}
 //if signup form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 
 	$signupUser=$_POST["sUsername"];
 	$signupPass=$_POST["sPassword"];
+	
+	include ("dbConnect.php");
 	
 	$dbQuery2=$db->prepare("select * from users
 							where username=:signupUser");
@@ -27,12 +65,11 @@ if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 	$dbQuery2->execute($dbParams2);
 	$dbRow2=$dbQuery2->fetch(PDO::FETCH_ASSOC);
 	
-	//if to check if name is taken
 	if($dbRow2["username"]==$signupUser){
+		
 		echo"<script>alert('Account name taken');</script>";
 	}else{
 	
-	//Insert query to create account 
 	$dbQuery=$db->prepare("insert into users 
 							values (null, :sUsername, :sPassword)"); 
 	$dbParams = array('sUsername'=>$signupUser, 'sPassword'=>$signupPass);
@@ -43,12 +80,15 @@ if (isset($_POST["action"]) && $_POST["action"]=="signup") {
 	$_SESSION["currentUser"]=$signupUser;
 	}
 }
+}
 //if login form has been submitted, check user/password
 if (isset($_POST["action"]) && $_POST["action"]=="login") {
 
 	//set form values to PHP variables for validation
 	$formUser=$_POST["username"];
 	$formPass=$_POST["password"];
+
+	include ("dbConnect.php");
 
 	//check users in database
 	$dbQuery=$db->prepare("select * from users where username=:formUser"); 
@@ -59,17 +99,17 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
          if ($dbRow["password"]==$formPass) {
             $_SESSION["currentUser"]=$formUser;
             $_SESSION["currentUserID"]=$dbRow["id"];
-			header("Location: main.php");
+			header("Location: gamestore.php");
 				/*if (isset($_SESSION["tracklist"])) 
                  header("Location: addToBasket.php");
             else header("Location: shopForTracks.php");  		*/	
          }//password if
          else {
-            header("Location: main.php?failCode=2");
+            header("Location: gamestore.php?failCode=2");
          }
       }//user if 
 	  else {
-            header("Location: main.php?failCode=1");
+            header("Location: gamestore.php?failCode=1");
       }
 
    } else {
@@ -89,11 +129,9 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <!-- Latest compiled JavaScript -->
 <script src="bootstrap/boot/js/bootstrap.min.js"></script>
 <!-- custom stylesheet -->
-<link rel="stylesheet" href="main_css.css">
+<link rel="stylesheet" href="gamestore_css.css">
 </head>
 <body>
-
-
 
 <!-- navbar --> 
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -102,8 +140,8 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       <a class="navbar-brand" href="#" id="menu-toggle"><span class="glyphicon glyphicon-arrow-down" id="menu-arrow"></span> Bean Industries</a>
     </div>
     <ul class="nav navbar-nav">
-      <li class="active"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-      <li><a href="gamestore.php"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
+      <li><a href="main.php"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+      <li class="active"><a href="gamestore.php"><span class="glyphicon glyphicon-off"></span> Game Store</a></li>
       <li><a href="#"><span class="glyphicon glyphicon-earphone"></span> Contact Us</a></li>
     </ul>
 	
@@ -121,7 +159,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 	if(!isset($_SESSION["currentUser"])){
 	// right side of navbar-
 	echo "<ul class=\"nav navbar-nav navbar-right\">";
-		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up</a></li>";
+		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModal\"><span class=\"glyphicon glyphicon-user\"></span> Sign Up </a></li>";
 		echo "<li><a href=\"#\" data-toggle=\"modal\" data-target=\"#myModalLogin\"><span class=\"glyphicon glyphicon-log-in\"></span> Login </a></li>";
 	echo "</ul>";
 	} else {
@@ -147,10 +185,11 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       </div>
 	  <!-- MODAL BODY -->
       <div class="modal-body">
-		<ul class="list-group">
+		<ul class="list-group">			
 			<li class="list-group-item list-group-item-danger">You have <?php echo "$numGames games in your basket"?></li>
 		</ul>
-		&nbsp;&nbsp;<a href="main.php?logout">Log out</a>	
+		<!-- LOGOUT NEEDED -->
+		&nbsp;&nbsp;<a href="gamestore.php?logout">Log out</a>	
 	</div><!-- body -->
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -171,7 +210,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       </div>
 	  <!-- MODAL BODY -->
       <div class="modal-body">
-		<form role="form" method = "post" action="main.php">
+		<form role="form" name="signup" method = "post" action="gamestore.php">
 			<div class="form-group">
 				<label for="usr">Username:</label>
 				<input type="text" class="form-control" name="sUsername" placeholder="Enter Name...">
@@ -206,7 +245,7 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
       </div>
 	  <!-- MODAL BODY -->
       <div class="modal-body">
-        <form role="form" name="login" method ="post" action="main.php">
+        <form role="form" name="login" method ="post" action="gamestore.php">
 			<div class="form-group">
 				<label for="usr">Username:</label>
 				<input type="text" name="username" class="form-control" placeholder= "Enter Name...">
@@ -243,171 +282,188 @@ if (isset($_POST["action"]) && $_POST["action"]=="login") {
 <br>
 <div id="sidebar-wrapper">
 <br>
-<br>
-<!-- Twitter API -->
-	<div id = "twitterapi">
-	   <div id="container">  	   	   	   
-      	   <form method='get' action='easytweet (1).php'>
-			   <input type="radio" name="searchVal" value = "5"> 5<br>
-			   <input type="radio" name="searchVal" value = "10"> 10<br>
-			   <input type="radio" name="searchVal" value = "15"> 15<br>
-			   <input type="radio" name="searchVal" value = "20"> 20<br>
-      	       <input type='text' name='searchTerm' value='' size='15'>
-      	       <input type='submit' name='action' value='Search'>
-      	   </form> 
-      <div id="content">
-<?php
-require ("TwitterAPI.php");
-
-function printJSON($jsonData) {
-	$jsonString = htmlspecialchars(json_encode($jsonData, JSON_PRETTY_PRINT));
-	echo "<pre>" . $jsonString . "</pre>";
-}
-
-function showTweetProperties($tweet) {
-            	
-	if (sizeof($tweet->entities->urls) > 0) {
-		echo "<p>URLS<br>";
-		foreach ($tweet->entities->urls as $url) {
-			echo "<a href='$url->url'>$url->url</a><br>";
-		}
-		echo "</p>";
-	}			
-	if (sizeof($tweet->entities->hashtags) > 0) {
-		echo "<p>HASHTAGS<br>";
-		foreach ($tweet->entities->hashtags as $hashtag) {
-			$searchTerm = $hashtag->text;
-			echo "<a href='easytweet (1).php?action=hashtag&searchTerm=$searchTerm'>#$searchTerm</a><br>";
-		}
-		echo "</p>";
-	}
-	
-	if (sizeof($tweet->entities->user_mentions) > 0) {
-		echo "<p>USER MENTIONS<br>";
-		foreach ($tweet->entities->user_mentions as $user_mention) {
-			$searchTerm = $user_mention->screen_name;
-			echo "<a href='easytweet (1).php?action=user&searchTerm=$searchTerm'>@$searchTerm</a><br>";
-		}
-		echo "</p>";
-	}	
-	if (property_exists($tweet->entities, 'media')) {
-		foreach ($tweet->entities->media as $media) {
-		?>	    
-			<img src ="<?php echo $media->media_url; ?>" /><br> <?php
-		}
-		echo "</p>";
-	}	
-}//function showtweetproperties
-//----------------------------------------------------
-// MAIN BODY - get action and make call to Twitter API
-//---------------------------------------------------- 
-		$searchVal="20";
-		$searchTerm="uncharted";
-		
-		$twitterURL = 'search/tweets.json';
-		$params = array('q' => $searchTerm,
-						'count' => $searchVal);				
-		$twitterData = callTwitter($twitterURL, $params);
-		$tweets = $twitterData->statuses;
-
-// un-comment the next line to see the structure of the twitter data
-//printJSON($tweets);
-
-	
-// display tweets on web page
-
-foreach ($tweets as $tweet) {
-
-    /* Display the screen_name property as a clickable hyperlink to load that user's timeline (1d)
-       Note - this is NOT a link to twitter.com, but a link to your easytweet (1) application */    
-	echo "<hr><p>Tweet from @";
-	$username = $tweet->user->screen_name;
-$url = "easyTweet (1).php?action=user&searchTerm=$username";
-echo "<a href='$url'>$username</a>";
-	
-	//time and text
-	echo $tweet->created_at. "<br>";
-	echo $tweet->text."</p>";
-	showTweetProperties($tweet);
-}
-?>
-      </div> <!-- end of content div -->
-   </div> <!-- end of container div -->
-	</div> <!-- Twitter API -->
-</div><!-- Sidebar Wrapper -->
+	<ul class="sidebar-nav" id = "header-right">
+		<br>
+		<li><a href ="#">Account</a></li>
+		<li><a href ="#">Account</a></li>
+	</ul>
+	<input type="text" class="form-control" placeholder="Search Games..." id ="searchbar">
+</div>
 
 
 <!-- PAGE CONTENT -->
 <div id = "page-content-wrapper">
-<div class="row">
-	<div class="container-fluid">
+
+	<?php 
+	//if game has been selected, go to information page
+	if(isset($_GET["gameno"])){
+
+	$gameNum = $_GET["gameno"];
 		
-			<div class="well">
-				<h1>New Releases</h1>
-				<h1><small>Check out our hot new releases with <kbd>KILLER PRICES</kbd></small></h1>
-			</div>
-		</div>
+	//QUERY FOR IMAGE AND GAMES
+	$dbQuery=$db->prepare("select id, title, ageRating, price, url from gamelist");       
+	$dbQuery->execute();
+	$numTracks=$dbQuery->rowCount();
+	
+	//while loop breaks once it reaches correct game
+	while ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)){
+		if($dbRow[0] == $gameNum)
+			break;
+	}
+	?>
+<div class="row">
+<br>
+<br>
+<br>
+	<div class="col-md-2">
+	<!-- Spacing -->
+	</div>
+	<div class="col-md-2">
+	<div class="front-image">
+		<img src="<?php echo "$dbRow[4]" ?>" width = "300" height = "423">
+	</div>
 	</div>
 	
-	<div class="row">
-		<div class="col-md-4">
-			<!-- Empty Space -->
-		</div>
-		
-		<?php				
-		$dbQuery=$db->prepare("select id, url from gamelist");       
-		$dbQuery->execute();
-		$numTracks=$dbQuery->rowCount();
+	<div class="col-md-6">
+	<h3>Name: </h3><?php echo "<h3><small>$dbRow[1]</small></h3>"; ?>
+	<h3>Age Rating: </h3><?php echo "<h3><small>$dbRow[2]</small></h3>"; ?>
+	<h3>Price: </h3><?php echo "<h3><small>£$dbRow[3]</small></h3>"; ?>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+		<form role="form" name="addGame" method="post" action="gamestore.php">
+			<div class="checkbox">
+			<label><input type="checkbox" name="selectedGame" value="<?php echo $dbRow[0];?>">Confirm Selection</label>
+			</div>
+			<input type="hidden" name="action" value="addGame">
+			<div id="basket-button">
+			<!--<button type="submit" id="basket-button" class="btn btn-default">Add Game To Basket</button>-->
+			</div>
+		</form>
+</div>
+	<?php	
+	}else {
+	?>
+	<!-- AJAX Search -->
+	<script type="text/javascript">
+  
+     var ajaxObject = getXmlHttpRequestObject();
 
+     function getXmlHttpRequestObject() {
+       if (window.XMLHttpRequest)
+          return new XMLHttpRequest();
+       else if (window.ActiveXObject) 
+            return new ActiveXObject("Microsoft.XMLHTTP");
+       else alert ("XMLHttp not supported by browser")
+     }
+	 
+	 //the modified stuff from ajax recipie
+     function searchGames() { 
+       if (ajaxObject.readyState==4 || ajaxObject.readyState==0) {
+          var str=escape(document.getElementById("txtSearch").value);
+          ajaxObject.open("GET","getGames.php?action=games&search="+str, true);
+          ajaxObject.onreadystatechange=displayGames;
+          ajaxObject.send(null);         
+       }
+     }
+     
+       
+     function listGames(letter) {
+       if (ajaxObject.readyState==4 || ajaxObject.readyState==0) {
+          ajaxObject.open("GET","getGames.php?letter="+letter, true);
+          ajaxObject.onreadystatechange=displayGames;
+          ajaxObject.send(null);
+       }
+     }
+
+     function displayGames() { 
+       if (ajaxObject.readyState==4) {
+		  var gamesArray=ajaxObject.responseText.split("\n");
+          var numGames=gamesArray[0];
+          var lastGame=parseInt(gamesArray[1])+1;
+          var htmlStr="<form method=\"post\" action=\"addToBasket.php\">";
+          htmlStr+="<ul>";          
+          for(var i=1; i<=numGames; i++) {
+            gameDetails=gamesArray[i].split("_");
+            htmlStr+="<li id=\"ajax-list\"><input type=\"checkbox\" name=\"games[]\" value=\""+gameDetails[0]+"\"> "+gameDetails[1]+"</li>";         
+          }     
+          htmlStr+="</ul>";
+          htmlStr+="<input type=\"submit\" value=\"Add selected games to basket\">";
+          htmlStr+="</form>"; 
+          document.getElementById("games").innerHTML=htmlStr;
+       }
+     }  
+  </script>
+  <!-- Well for ajax search -->
+  <div class="well">
+  <div class="container-fluid">
+  <div class="col-md-4">
+	<h1>Search</h1>
+	<?php
+   $letters="abcdefghijklmnopqrstuvwxyz0123456789";
+   echo "<div class=\"bigMargin\">";
+   echo "<h2><small>Choose Game: </small></h2>";
+   for ($i=0; $i<=50; $i++) {
+      $letter=substr($letters,$i,1);
+      $initial=$letter."%";
+      $dbQuery=$db->prepare("select * from gamelist where title like :initial order by title asc");
+      $dbParams = array('initial'=>$initial);
+      $dbQuery->execute($dbParams);
+      if ($dbQuery->rowCount()>0)
+         echo "<a href=\"#\" onclick=\"listGames('$letter')\">$letter</a> ";
+      else echo "$letter ";   
+   }  
+   echo "</div>";
+
+?>
+	<form onsubmit="return false">
+     <input type="text" class="form-control" id="txtSearch" onkeyup="searchGames()" autocomplete="off" value="">
+  </form>  
+  </div>
+  <div class="col-md-4">
+	<div id="games">
+	</div>
+  </div>
+  </div>
+  </div>
+	<?php	
+	//QUERY FOR IMAGE AND GAMES
+	$dbQuery=$db->prepare("select id, url from gamelist");       
+	$dbQuery->execute();
+	$numTracks=$dbQuery->rowCount();
+	?>
+		
+	<?php for($i = 0; $i < 25; $i++){ ?>
+	<div class="row">
+	<br>
+	<br>
+	<br>
+	<div class="container">
+	<div class="col-md-8">
+		<div class="front-image">
+		<!-- IMAGE BLOCK -->
+		<?php 
 		($dbRow=$dbQuery->fetch(PDO::FETCH_NUM));
 		?>
+		<a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" id="gamepic" alt="First"></a>
 		
-	<!-- Front Page Image CSS Div -->
-	<div class="front-image">
-		<div id="myCarousel" class="carousel slide" data-ride="carousel">
-		  <!-- Indicators -->
-		  <ol class="carousel-indicators">
-			<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-			<li data-target="#myCarousel" data-slide-to="1"></li>
-			<li data-target="#myCarousel" data-slide-to="2"></li>
-			<li data-target="#myCarousel" data-slide-to="3"></li>
-		  </ol>
-
-		  <!-- Wrapper for slides -->
-		  <div class="carousel-inner" role="listbox">
-			<div class="item active">
-			  <a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" alt="First"></a>
-			</div>
-
-			<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-			<div class="item">
-			  <a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" alt="Second"></a>
-			</div>
-			
-			<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-			<div class="item">
-			  <a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" alt="Third"></a>
-			</div>
-
-			<?php ($dbRow=$dbQuery->fetch(PDO::FETCH_NUM)); ?>
-			<div class="item">
-			  <a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" alt="Four"></a>
-			</div>
-		  </div>
-			<?php //} ?>
-
-		  <!-- Left and right controls -->
-		  <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-			<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-			<span class="sr-only">Previous</span>
-		  </a>
-		  <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-			<span class="sr-only">Next</span>
-		  </a>
-			</div><!-- Carousel -->
-		</div><!-- Front image div -->
-	</div><!-- Row -->		
+		</div>
+	</div><!-- container -->
+	<div class="col-md-4">
+		<div class="front-image">
+		<!-- IMAGE BLOCK -->
+		<?php 
+		($dbRow=$dbQuery->fetch(PDO::FETCH_NUM));
+		?>
+		<a href="gamestore.php?gameno=<?php echo "$dbRow[0]"?>"><img src="<?php echo "$dbRow[1]";?>" id="gamepic" alt="First"></a>
+		</div>
+	</div>
+</div>
+</div><!-- row -->
+	<?php }} ?>
+		
 </div><!-- Content Wrapper -->
 
 <!-- Main wrapper -->
@@ -421,9 +477,16 @@ echo "<a href='$url'>$username</a>";
 			$("#wrapper").toggleClass("menuDisplayed");
 			$(".glyphicon.glyphicon-arrow-down").fadeToggle(1000);
 		});	
+/* JQuery to toggle button on basket page */
+	var buttonCounter = 0;
+	$(".checkbox").click(function(e){
+		buttonCounter++;
+		if(buttonCounter<2)
+		$("#basket-button").append("<button type=\"submit\" class=\"btn btn-default\">Add Game To Basket</button>");
+	});
 	</script>
 </body>
 </html>
 <?php
-   }
+}
 ?>
